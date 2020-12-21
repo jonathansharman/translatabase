@@ -1,0 +1,52 @@
+body {
+	font-family: "Times New Roman", Times, serif;
+	max-width: 920px;
+	margin: auto;
+	text-align: justify;
+}
+
+.error {
+	color: red;
+	visibility: hidden;
+}
+
+.big {
+	display: block;
+	padding: 10px 16px;
+	display: inline-block;
+	font-size: 16pt;
+}
+
+ul.nav {
+	list-style-type: none;
+	margin-top: 12px;
+	margin-bottom: 12px;
+	padding: 0;
+	overflow: hidden;
+	border-radius: 5px;
+	background-color: #3570a5;
+	font-size: 18pt;
+}
+li.nav {
+	display: block;
+	float: left;
+	text-align: center;
+}
+li.nav a {
+	display: inline-block;
+	color: white;
+	text-decoration: none;
+	padding: 10px 14px 10px 16px;
+}
+li.nav:hover:not(.active) {
+	background-color: #5085c0;
+}
+li.nav.active {
+	color: white;
+	background-color: #b05050;
+	padding: 10px 14px 10px 16px;
+}
+
+[v-cloak] {
+	display: none
+}

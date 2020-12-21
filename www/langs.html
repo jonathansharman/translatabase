@@ -1,0 +1,34 @@
+<html  lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Translatabase</title>
+	<meta name="description" content="Custom translation database.">
+	<meta name="author" content="Jonathan Sharman">
+
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<div id="app">
+		<ul class="nav">
+			<li class="nav active">Languages</li>
+			<li class="nav"><a href="/word_classes.html">Word Classes</a></li>
+			<li class="nav"><a href="/lemmas.html">Lemmas</a></li>
+			<li class="nav"><a href="/translations.html">Translations</a></li>
+		</ul>
+		<div>
+			<input id="lang-input" class="big">
+			<button id="add-lang" class="big" onclick="post_lang()">Add Language</button>
+			<span id="invalid-lang" class="error big">Invalid language.</span>
+		</div>
+		<div>
+			<span v-cloak v-for="lang in langs" class="big">
+				{{ lang.name }}
+			</span>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<script src="langs.js"></script>
+</body>
+</html>
