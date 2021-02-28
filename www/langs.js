@@ -22,8 +22,12 @@ const update_langs = () => {
 }
 
 const post_lang = () => {
-	const url = "/lang/" + lang_input.value;
-	fetch(url, { method: "POST" }).then(response => {
+	const options = {
+		method: "POST",
+		headers: { 'Content-Type': 'application/text' },
+		body: lang_input.value
+	}
+	fetch("/langs", options).then(response => {
 		if (response.status == 200) {
 			invalid_lang.style.visibility = "hidden";
 			lang_input.value = "";

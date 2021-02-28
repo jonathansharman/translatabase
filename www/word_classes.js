@@ -23,8 +23,12 @@ const update_classes = () => {
 }
 
 const post_class = () => {
-	const url = "/class/English/" + class_input.value;
-	fetch(url, { method: "POST" }).then(response => {
+	const options = {
+		method: "POST",
+		headers: { 'Content-Type': 'application/text' },
+		body: class_input.value
+	}
+	fetch("/classes/English", options).then(response => {
 		if (response.status == 200) {
 			invalid_class.style.visibility = "hidden";
 			class_input.value = "";

@@ -27,7 +27,7 @@ fn index(conn: State<Mutex<Connection>>) -> Result<Redirect, Status> {
 	// Initialize database.
 	conn.lock()
 		.map_err(map_err)?
-		.execute_batch(include_str!("init.sql"))
+		.execute_batch(include_str!("create.sql"))
 		.map_err(map_err)?;
 	// Redirect to the languages page.
 	Ok(Redirect::to("langs.html"))
@@ -43,16 +43,16 @@ fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<String>>, Status
 		order by name collate nocase
 		").map_err(map_err)?;
 	let langs = statement.query_map(params![], |row| {
-		Ok(Lang(row.get(0).unwrap()))
+		Ok(Lang(row.get(0)?))
 	}).map_err(map_err)?;
 	let mut lang_names = Vec::new();
 	for lang in langs {
-		lang_names.push(lang.unwrap().0);
+		lang_names.push(lang.map_err(map_err)?.0);
 	}
 	Ok(Json(lang_names))
 }
 
-#[post("/lang/<name>")]
+#[post("/langs", data = "<name>")]
 fn post_lang(name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("insert into langs (name) values (?1)", params![name]).map_err(map_err)?;
@@ -70,16 +70,16 @@ fn get_classes(lang: String, conn: State<Mutex<Connection>>) -> Result<Json<Vec<
 		order by name collate nocase
 	").map_err(map_err)?;
 	let word_classes = statement.query_map(params![lang], |row| {
-		Ok(WordClass(row.get(0).unwrap()))
+		Ok(WordClass(row.get(0)?))
 	}).map_err(map_err)?;
 	let mut word_class_names = Vec::new();
 	for word_class in word_classes {
-		word_class_names.push(word_class.unwrap().0);
+		word_class_names.push(word_class.map_err(map_err)?.0);
 	}
 	Ok(Json(word_class_names))
 }
 
-#[post("/class/<lang>/<name>")]
+#[post("/classes/<lang>", data = "<name>")]
 fn post_class(lang: String, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("insert into classes (lang, name) values (?1, ?2)", params![lang, name]).map_err(map_err)?;
