@@ -13,6 +13,7 @@ use rocket_contrib::{
 	serve::StaticFiles,
 };
 use rusqlite::{params, Connection};
+use serde::{Deserialize, Serialize};
 use webbrowser;
 
 use std::sync::Mutex;
@@ -33,56 +34,95 @@ fn index(conn: State<Mutex<Connection>>) -> Result<Redirect, Status> {
 	Ok(Redirect::to("langs.html"))
 }
 
-struct Lang(String);
-
-#[get("/langs")]
-fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<String>>, Status> {
-	let conn = conn.lock().map_err(map_err)?;
-	let mut statement = conn.prepare("
-		select * from langs
-		order by name collate nocase
-		").map_err(map_err)?;
-	let langs = statement.query_map(params![], |row| {
-		Ok(Lang(row.get(0)?))
-	}).map_err(map_err)?;
-	let mut lang_names = Vec::new();
-	for lang in langs {
-		lang_names.push(lang.map_err(map_err)?.0);
-	}
-	Ok(Json(lang_names))
+#[derive(Serialize, Deserialize)]
+struct Lang {
+	id: i64,
+	name: String,
 }
 
-#[post("/langs", data = "<name>")]
+#[post("/lang/<name>")]
 fn post_lang(name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
-	conn.execute("insert into langs (name) values (?1)", params![name]).map_err(map_err)?;
+	conn.execute("insert into lang (name) values (?1)", params![name]).map_err(map_err)?;
 	Ok(())
 }
 
-struct WordClass(String);
-
-#[get("/classes/<lang>")]
-fn get_classes(lang: String, conn: State<Mutex<Connection>>) -> Result<Json<Vec<String>>, Status> {
+#[get("/langs")]
+fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<Lang>>, Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	let mut statement = conn.prepare("
-		select name from classes
-		where lang = ?1
+		select id, name from lang
 		order by name collate nocase
 	").map_err(map_err)?;
-	let word_classes = statement.query_map(params![lang], |row| {
-		Ok(WordClass(row.get(0)?))
+	let rows = statement.query_map(params![], |row| {
+		Ok(Lang {
+			id: row.get(0)?,
+			name: row.get(1)?,
+		})
+	}).map_err(map_err)?;
+	let mut langs = Vec::new();
+	for lang in rows {
+		langs.push(lang.map_err(map_err)?);
+	}
+	Ok(Json(langs))
+}
+
+#[put("/lang/<id>/<name>")]
+fn put_lang(id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	conn.execute("
+		update lang
+		set name = ?2
+		where id = ?1
+	", params![id, name]).map_err(map_err)?;
+	Ok(())
+}
+
+#[delete("/lang/<id>")]
+fn delete_lang(id: i64, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	let mut statement = conn.prepare("
+		delete from lang
+		where id = $1
+	").map_err(map_err)?;
+	statement.execute(params![id]).map_err(map_err)?;
+	Ok(())
+}
+
+#[derive(Serialize, Deserialize)]
+struct WordClass {
+	id: i64,
+	name: String,
+}
+
+#[get("/classes/<lang_id>")]
+fn get_classes(lang_id: i64, conn: State<Mutex<Connection>>) -> Result<Json<Vec<WordClass>>, Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	let mut statement = conn.prepare("
+		select id, name from class
+		where lang_id = ?1
+		order by name collate nocase
+	").map_err(map_err)?;
+	let word_classes = statement.query_map(params![lang_id], |row| {
+		Ok(WordClass {
+			id: row.get(0)?,
+			name: row.get(1)?,
+		})
 	}).map_err(map_err)?;
 	let mut word_class_names = Vec::new();
 	for word_class in word_classes {
-		word_class_names.push(word_class.map_err(map_err)?.0);
+		word_class_names.push(word_class.map_err(map_err)?);
 	}
 	Ok(Json(word_class_names))
 }
 
-#[post("/classes/<lang>", data = "<name>")]
-fn post_class(lang: String, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[post("/class/<lang_id>/<name>")]
+fn post_class(lang_id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
-	conn.execute("insert into classes (lang, name) values (?1, ?2)", params![lang, name]).map_err(map_err)?;
+	conn.execute(
+		"insert into class (lang_id, name) values (?1, ?2)",
+		params![lang_id, name],
+	).map_err(map_err)?;
 	Ok(())
 }
 
@@ -96,7 +136,9 @@ fn main() {
 		.mount("/", routes![
 			index,
 			get_langs,
+			put_lang,
 			post_lang,
+			delete_lang,
 			get_classes,
 			post_class,
 		])

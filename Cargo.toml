@@ -5,9 +5,10 @@ authors = ["Jonathan Sharman <jonathan.sharman@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-log = "0.4.11"
-rocket = "0.4.6"
-rocket_contrib = "0.4.6"
+log = "0.4.14"
+rocket = "0.4.7"
+rocket_contrib = "0.4.7"
+serde = { version = "1.0.123", features = ["derive"] }
 webbrowser = "0.5.5"
 
 [dependencies.rusqlite]

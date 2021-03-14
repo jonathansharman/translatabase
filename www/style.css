@@ -7,15 +7,14 @@ body {
 
 .error {
 	color: red;
-	visibility: hidden;
-}
-
-.big {
-	display: block;
-	padding: 10px 16px;
-	display: inline-block;
 	font-size: 16pt;
 }
+
+span + span {
+	margin-left: 6px;
+}
+
+/* Nav bar */
 
 ul.nav {
 	list-style-type: none;
@@ -46,6 +45,78 @@ li.nav.active {
 	background-color: #b05050;
 	padding: 10px 14px 10px 16px;
 }
+
+/* Tables */
+
+table {
+	border-collapse: collapse;
+	font-size: 16pt;
+	width: 100%;
+}
+tr { 
+	border: solid;
+	border-width: 1px 0;
+}
+tr:first-child {
+	border-top: none;
+}
+tr:last-child {
+	border-bottom: none;
+}
+td {
+	vertical-align: baseline;
+	padding: 6px 0 6px 6px;
+}
+td:first-child {
+	width: 100%;
+}
+
+/* Buttons */
+
+button {
+	font-size: 12pt;
+	padding: 8px 10px;
+	border: 1px solid black;
+	border-radius: 3px;
+}
+button.create {
+	color: white;
+	background-color: #2ebc29;
+}
+button.edit {
+	color: white;
+	background-color: #428bca;
+}
+button.delete {
+	color: white;
+	background-color: #d43f3a;
+}
+button:disabled {
+	color: #fff;
+	background-color: #ccc;
+	border-color: #555;
+}
+
+/* Text inputs */
+
+input {
+	font-family: inherit;
+	font-size: 14pt;
+	padding: 6px 8px;
+	border: 1px solid black;
+	border-radius: 3px;
+}
+input:disabled {
+	color: inherit;
+	background-color: inherit;
+	border-color: transparent;
+	display: inline;
+	padding: none;
+	width: auto;
+	cursor: text;
+}
+
+/* Vue */
 
 [v-cloak] {
 	display: none

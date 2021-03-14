@@ -1,71 +1,63 @@
 begin;
 
-create table if not exists langs (
-	name text primary key
-) without rowid;
+create table if not exists lang (
+	id integer primary key,
+	name text not null unique
+);
 
-create table if not exists classes (
-	lang text,
-	name text,
-	primary key (lang, name),
-	foreign key (lang) references langs (name)
-) without rowid;
+create table if not exists class (
+	id integer primary key,
+	lang_id integer not null,
+	name text not null,
+	unique (lang_id, name),
+	foreign key (lang_id) references lang (id)
+);
 
-create table if not exists lemmas (
-	lang text,
-	name text,
-	primary key (lang, name),
-	foreign key (lang) references langs (name)
-) without rowid;
+create table if not exists lemma (
+	id integer primary key,
+	lang_id integer not null,
+	name text not null,
+	unique (lang_id, name),
+	foreign key (lang_id) references lang (id)
+);
 
-create table if not exists defs (
-	lang text,
-	lemma text,
-	rank integer,
-	class text not null,
+create table if not exists def (
+	id integer primary key,
+	lemma_id integer not null,
+	sort_order integer not null,
+	class_id integer not null,
 	translit text not null,
-	def text not null,
-	primary key (lang, lemma, rank),
-	foreign key (lang) references langs (name),
-	foreign key (lang, lemma) references lemmas (lang, name),
-	foreign key (lang, class) references classes (lang, class)
-) without rowid;
+	content text not null,
+	unique (lemma_id, sort_order),
+	foreign key (lemma_id) references lemma (id),
+	foreign key (class_id) references class (id)
+);
 
 create table if not exists trans (
-	lang1 text,
-	lemma1 text,
-	lang2 text,
-	lemma2 text,
-	primary key (lang1, lemma1, lang2, lemma2),
-	foreign key (lang1) references langs (name),
-	foreign key (lang2) references langs (name),
-	foreign key (lang1, lemma1) references lemmas (lang, name),
-	foreign key (lang2, lemma2) references lemmas (lang, name)
-) without rowid;
+	id integer primary key,
+	lemma_id_1 integer not null,
+	lemma_id_2 integer not null,
+	unique (lemma_id_1, lemma_id_2),
+	foreign key (lemma_id_1) references lemma (id),
+	foreign key (lemma_id_2) references lemma (id)
+);
 
 create table if not exists trans_note (
-	lang1 text,
-	lemma1 text,
-	lang2 text,
-	lemma2 text,
-	rank integer,
-	note text not null,
-	primary key (lang1, lemma1, lang2, lemma2, rank),
-	foreign key (lang1) references langs (name),
-	foreign key (lang2) references langs (name),
-	foreign key (lang1, lemma1) references lemmas (lang, name),
-	foreign key (lang2, lemma2) references lemmas (lang, name),
-	foreign key (lang1, lemma1, lang2, lemma2) references trans (lang1, lemma1, lang2, lemma2)
-) without rowid;
+	id integer primary key,
+	trans_id integer not null,
+	sort_order integer not null,
+	content text not null,
+	unique (trans_id, sort_order),
+	foreign key (trans_id) references trans (id)
+);
 
-create table if not exists cfs (
-	lang text,
-	lemma1 text,
-	lemma2 text,
-	primary key (lang, lemma1, lemma2),
-	foreign key (lang) references langs (name),
-	foreign key (lang, lemma1) references lemmas (lang, name),
-	foreign key (lang, lemma2) references lemmas (lang, name)
-) without rowid;
+create table if not exists cf (
+	id integer primary key,
+	lemma_id_1 integer not null,
+	lemma_id_2 integer not null,
+	unique (lemma_id_1, lemma_id_2),
+	foreign key (lemma_id_1) references lemma (id),
+	foreign key (lemma_id_2) references lemma (id)
+);
 
 commit;

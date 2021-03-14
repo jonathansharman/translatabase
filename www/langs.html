@@ -16,19 +16,39 @@
 			<li class="nav"><a href="/lemmas.html">Lemmas</a></li>
 			<li class="nav"><a href="/translations.html">Translations</a></li>
 		</ul>
-		<div>
-			<input id="lang-input" class="big">
-			<button id="add-lang" class="big" onclick="post_lang()">Add Language</button>
-			<span id="invalid-lang" class="error big">Invalid language.</span>
+		<div v-cloak>
+			<div>
+				<span>
+					<input ref="lang_input" @keydown.enter="post_lang">
+				</span>
+				<span>
+					<button type="button" ref="add_lang_button" @click="post_lang" class="create">Add</button>
+				</span>
+			</div>
+			<div ref="invalid_lang" v-if="error" class="error">{{ error }}</div>
 		</div>
-		<div>
-			<span v-cloak v-for="lang in langs" class="big">
-				{{ lang.name }}
-			</span>
-		</div>
+		<table v-cloak>
+			<tr v-for="lang in langs">
+				<td>
+					<div>
+						<input :id="'lang-input-' + lang.id" type=text :value="lang.name" :disabled="!renaming[lang.id]" @keydown.enter="save_renaming(lang)" @keydown.escape="cancel_renaming(lang)"></input>
+					</div>
+					<div v-if="renaming[lang.id]" style="padding-top: 6px;">
+						<span><button type="button" :id="'save-rename-' + lang.id" @click="save_renaming(lang)" class="edit">Save</button></span>
+						<span><button type="button" :id="'cancel-rename-' + lang.id" @click="cancel_renaming(lang)">Cancel</button></span>
+					</div>
+				</td>
+				<td>
+					<button type="button" :id="'rename-' + lang.id" @click="start_renaming(lang)" class="edit">Rename</button>
+				</td>
+				<td>
+					<button type="button" :id="'delete-' + lang.id" @click="delete_lang(lang.id)" class="delete">Delete</button>
+				</td>
+			</tr>
+		</table>
 	</div>
 
-	<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<script src="https://unpkg.com/vue@3"></script>
 	<script src="langs.js"></script>
 </body>
 </html>
