@@ -3,12 +3,15 @@
 const app = {
 	data() {
 		return {
+			panel: "langs",
 			langs: [],
-			renaming: {},
+			renaming_lang: {},
+			word_classes: [],
 			error: null
 		};
 	},
 	methods: {
+		// Languages
 		update_langs() {
 			fetch("/langs").then(response => {
 				response.json().then(langs => {
@@ -18,7 +21,7 @@ const app = {
 		},
 		start_renaming(lang) {
 			this.error = null;
-			this.renaming[lang.id] = true;
+			this.renaming_lang[lang.id] = true;
 			// Disable Rename/Delete buttons.
 			document.getElementById("rename-" + lang.id).disabled = true;
 			document.getElementById("delete-" + lang.id).disabled = true;
@@ -29,7 +32,7 @@ const app = {
 		},
 		save_renaming(lang) {
 			this.error = null;
-			this.renaming[lang.id] = false;
+			this.renaming_lang[lang.id] = false;
 			// Reenable Rename/Delete buttons.
 			document.getElementById("rename-" + lang.id).disabled = false;
 			document.getElementById("delete-" + lang.id).disabled = false;
@@ -41,7 +44,7 @@ const app = {
 		},
 		cancel_renaming(lang) {
 			this.error = null;
-			this.renaming[lang.id] = false;
+			this.renaming_lang[lang.id] = false;
 			// Reenable Rename/Delete buttons.
 			document.getElementById("rename-" + lang.id).disabled = false;
 			document.getElementById("delete-" + lang.id).disabled = false;
@@ -98,6 +101,31 @@ const app = {
 				} else {
 					this.error = "Could not delete lang";
 				}
+			});
+		},
+		// Word classes
+		update_classes() {
+			fetch("/classes/English").then(response => {
+				response.json().then(word_classes => {
+					this.word_classes = word_classes;
+				});
+			});
+		},
+		post_class() {
+			const options = {
+				method: "POST",
+				headers: { 'Content-Type': 'application/text' },
+				body: class_input.value
+			}
+			fetch("/classes/English", options).then(response => {
+				if (response.status == 200) {
+					invalid_class.style.visibility = "hidden";
+					class_input.value = "";
+				} else {
+					invalid_class.style.visibility = "visible";
+				}
+				update_classes();
+				class_input.select();
 			});
 		}
 	},

@@ -30,8 +30,8 @@ fn index(conn: State<Mutex<Connection>>) -> Result<Redirect, Status> {
 		.map_err(map_err)?
 		.execute_batch(include_str!("create.sql"))
 		.map_err(map_err)?;
-	// Redirect to the languages page.
-	Ok(Redirect::to("langs.html"))
+	// Redirect to the app page.
+	Ok(Redirect::to("app.html"))
 }
 
 #[derive(Serialize, Deserialize)]

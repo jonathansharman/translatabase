@@ -1,5 +1,6 @@
 body {
 	font-family: "Times New Roman", Times, serif;
+	font-size: 14pt;
 	max-width: 920px;
 	margin: auto;
 	text-align: justify;
@@ -26,21 +27,19 @@ ul.nav {
 	background-color: #3570a5;
 	font-size: 18pt;
 }
-li.nav {
+ul.nav li {
 	display: block;
 	float: left;
 	text-align: center;
-}
-li.nav a {
-	display: inline-block;
 	color: white;
-	text-decoration: none;
 	padding: 10px 14px 10px 16px;
+	cursor: default;
 }
-li.nav:hover:not(.active) {
+ul.nav li:hover:not(.active) {
 	background-color: #5085c0;
+	cursor: pointer;
 }
-li.nav.active {
+ul.nav li.active {
 	color: white;
 	background-color: #b05050;
 	padding: 10px 14px 10px 16px;
@@ -114,6 +113,17 @@ input:disabled {
 	padding: none;
 	width: auto;
 	cursor: text;
+}
+
+/* Selects */
+
+select {
+	font-family: inherit;
+	font-size: 14pt;
+	padding: 6px 8px;
+	margin: 6px 8px;
+	border: 1px solid black;
+	border-radius: 3px;
 }
 
 /* Vue */

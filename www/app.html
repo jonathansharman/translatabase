@@ -1,0 +1,86 @@
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Translatabase</title>
+	<meta name="description" content="Custom translation database.">
+	<meta name="author" content="Jonathan Sharman">
+
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<ul class="nav">
+			<li v-bind:class="{ active: panel === 'langs' }" @click="panel = 'langs'">Languages</li>
+			<li v-bind:class="{ active: panel === 'classes' }" @click="panel = 'classes'">Word Classes</li>
+			<li v-bind:class="{ active: panel === 'lemmas' }" @click="panel = 'lemmas'">Lemmas</li>
+			<li v-bind:class="{ active: panel === 'translations' }" @click="panel = 'translations'">Translations</li>
+		</ul>
+
+		<!-- Languages -->
+		<div v-bind:hidden="panel !== 'langs'">
+		<div>
+			<div>
+				<span>
+					<input ref="lang_input" @keydown.enter="post_lang">
+				</span>
+				<span>
+					<button type="button" ref="add_lang_button" @click="post_lang" class="create">Add</button>
+				</span>
+			</div>
+			<div ref="invalid_lang" v-if="error" class="error">{{ error }}</div>
+		</div>
+		<table>
+			<tr v-for="lang in langs">
+				<td>
+					<div>
+						<input :id="'lang-input-' + lang.id" type=text :value="lang.name" :disabled="!renaming_lang[lang.id]"
+							@keydown.enter="save_renaming(lang)" @keydown.escape="cancel_renaming(lang)"></input>
+					</div>
+					<div v-if="renaming_lang[lang.id]" style="padding-top: 6px;">
+						<span><button type="button" :id="'save-rename-' + lang.id" @click="save_renaming(lang)"
+								class="edit">Save</button></span>
+						<span><button type="button" :id="'cancel-rename-' + lang.id"
+								@click="cancel_renaming(lang)">Cancel</button></span>
+					</div>
+				</td>
+				<td>
+					<button type="button" :id="'rename-' + lang.id" @click="start_renaming(lang)"
+						class="edit">Rename</button>
+				</td>
+				<td>
+					<button type="button" :id="'delete-' + lang.id" @click="delete_lang(lang.id)"
+						class="delete">Delete</button>
+				</td>
+			</tr>
+		</table>
+		</div>
+
+		<!-- Word classes -->
+		<div v-bind:hidden="panel !== 'classes'">
+		<label for="lang-select">Language:</label>
+		<select id="lang-select">
+			<template v-for="lang in langs">
+				<option v-bind:value="lang.id">{{ lang.name }}</option>
+			</template>
+		</select>
+		<div>
+			<input id="class-input" @keydown.enter="post_class">
+			<button id="add-class" onclick="post_class()">Add Word Class</button>
+			<span id="invalid-class" class="error">Invalid word class.</span>
+		</div>
+		<div>
+			<span v-for="word_class in word_classes">
+				{{ word_class.name }}
+			</span>
+		</div>
+		</div>
+	</div>
+
+	<script src="https://unpkg.com/vue@3"></script>
+	<script src="app.js"></script>
+</body>
+
+</html>
