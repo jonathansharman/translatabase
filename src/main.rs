@@ -128,9 +128,11 @@ fn post_class(lang_id: i64, name: String, conn: State<Mutex<Connection>>) -> Res
 
 fn main() {
 	// Open database connection.
-	let connection = Connection::open("translatabase.db").unwrap();
+	let connection = Connection::open("translatabase.db")
+		.expect("Could not open database connection");
 	// Launch web browser.
-	webbrowser::open("http://localhost:8000/").unwrap();
+	webbrowser::open("http://localhost:8000/")
+		.expect("Could not open web browser");
 	// Launch server.
 	rocket::ignite()
 		.mount("/", routes![

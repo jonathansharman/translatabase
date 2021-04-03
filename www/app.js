@@ -55,7 +55,6 @@ const app = {
 			window.getSelection().removeAllRanges();
 		},
 		post_lang() {
-			// Send the request.
 			const url = "/lang/" + encodeURIComponent(this.$refs.lang_input.value);
 			const options = {
 				method: "POST",
@@ -88,7 +87,6 @@ const app = {
 			});
 		},
 		delete_lang(id) {
-			// Send the request.
 			const url = "/lang/" + encodeURIComponent(id);
 			const options = {
 				method: "DELETE",
@@ -105,27 +103,30 @@ const app = {
 		},
 		// Word classes
 		update_classes() {
-			fetch("/classes/English").then(response => {
+			const url = "/classes/" + encodeURIComponent(this.$refs.lang_select.value);
+			fetch(url).then(response => {
 				response.json().then(word_classes => {
 					this.word_classes = word_classes;
 				});
 			});
 		},
 		post_class() {
+			const lang_id = encodeURIComponent(this.$refs.lang_select.value)
+			const name = encodeURIComponent(this.$refs.class_input.value)
+			const url = "/class/" + lang_id + "/" + name;
 			const options = {
 				method: "POST",
 				headers: { 'Content-Type': 'application/text' },
-				body: class_input.value
 			}
-			fetch("/classes/English", options).then(response => {
+			fetch(url, options).then(response => {
 				if (response.status == 200) {
 					this.error = null;
-					class_input.value = "";
+					this.$refs.class_input.value = "";
 				} else {
 					this.error = "Invalid class";
 				}
-				update_classes();
-				class_input.select();
+				this.update_classes();
+				this.$refs.class_input.select();
 			});
 		}
 	},

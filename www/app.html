@@ -14,7 +14,7 @@
 	<div id="app" v-cloak>
 		<ul class="nav">
 			<li v-bind:class="{ active: panel === 'langs' }" @click="panel = 'langs'">Languages</li>
-			<li v-bind:class="{ active: panel === 'classes' }" @click="panel = 'classes'">Word Classes</li>
+			<li v-bind:class="{ active: panel === 'classes' }" @click="panel = 'classes'; this.update_classes()">Word Classes</li>
 			<li v-bind:class="{ active: panel === 'lemmas' }" @click="panel = 'lemmas'">Lemmas</li>
 			<li v-bind:class="{ active: panel === 'translations' }" @click="panel = 'translations'">Translations</li>
 		</ul>
@@ -27,9 +27,9 @@
 					<input ref="lang_input" @keydown.enter="post_lang">
 				</span>
 				<span>
-					<button type="button" ref="add_lang_button" @click="post_lang" class="create">Add</button>
+					<button type="button" @click="post_lang" class="create">Add</button>
 				</span>
-				<span ref="error" v-if="error" class="error">{{ error }}</span>
+				<span v-if="error" class="error">{{ error }}</span>
 			</div>
 		</div>
 		<table>
@@ -61,19 +61,19 @@
 		<!-- Word classes -->
 		<div v-bind:hidden="panel !== 'classes'">
 		<label for="lang-select">Language:</label>
-		<select id="lang-select">
+		<select id="lang-select" ref="lang_select" @change="update_classes">
 			<template v-for="lang in langs">
 				<option v-bind:value="lang.id">{{ lang.name }}</option>
 			</template>
 		</select>
 		<div>
 			<span>
-				<input id="class-input" @keydown.enter="post_class">
+				<input ref="class_input" @keydown.enter="post_class">
 			</span>
 			<span>
-				<button id="add-class" onclick="post_class()">Add Word Class</button>
+				<button id="add-class" @click="post_class" class="create">Add</button>
 			</span>
-			<span ref="error" v-if="error" class="error">{{ error }}</span>
+			<span v-if="error" class="error">{{ error }}</span>
 		</div>
 		<div>
 			<span v-for="word_class in word_classes">
