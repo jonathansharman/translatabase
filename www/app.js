@@ -56,7 +56,7 @@ const app = {
 		},
 		post_lang() {
 			// Send the request.
-			const url = "/lang/" + this.$refs.lang_input.value;
+			const url = "/lang/" + encodeURIComponent(this.$refs.lang_input.value);
 			const options = {
 				method: "POST",
 				headers: { "Content-Type": "application/text" },
@@ -73,7 +73,7 @@ const app = {
 			});
 		},
 		put_lang(id, name) {
-			const url = "/lang/" + id + "/" + name;
+			const url = "/lang/" + encodeURIComponent(id) + "/" + encodeURIComponent(name);
 			const options = {
 				method: "PUT",
 				headers: { "Content-Type": "application/text" },
@@ -89,7 +89,7 @@ const app = {
 		},
 		delete_lang(id) {
 			// Send the request.
-			const url = "/lang/" + id;
+			const url = "/lang/" + encodeURIComponent(id);
 			const options = {
 				method: "DELETE",
 				headers: { "Content-Type": "application/text" },
@@ -119,10 +119,10 @@ const app = {
 			}
 			fetch("/classes/English", options).then(response => {
 				if (response.status == 200) {
-					invalid_class.style.visibility = "hidden";
+					this.error = null;
 					class_input.value = "";
 				} else {
-					invalid_class.style.visibility = "visible";
+					this.error = "Invalid class";
 				}
 				update_classes();
 				class_input.select();

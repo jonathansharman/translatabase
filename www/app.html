@@ -29,8 +29,8 @@
 				<span>
 					<button type="button" ref="add_lang_button" @click="post_lang" class="create">Add</button>
 				</span>
+				<span ref="error" v-if="error" class="error">{{ error }}</span>
 			</div>
-			<div ref="invalid_lang" v-if="error" class="error">{{ error }}</div>
 		</div>
 		<table>
 			<tr v-for="lang in langs">
@@ -67,9 +67,13 @@
 			</template>
 		</select>
 		<div>
-			<input id="class-input" @keydown.enter="post_class">
-			<button id="add-class" onclick="post_class()">Add Word Class</button>
-			<span id="invalid-class" class="error">Invalid word class.</span>
+			<span>
+				<input id="class-input" @keydown.enter="post_class">
+			</span>
+			<span>
+				<button id="add-class" onclick="post_class()">Add Word Class</button>
+			</span>
+			<span ref="error" v-if="error" class="error">{{ error }}</span>
 		</div>
 		<div>
 			<span v-for="word_class in word_classes">
