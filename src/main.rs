@@ -40,7 +40,7 @@ struct Lang {
 	name: String,
 }
 
-#[post("/lang/<name>")]
+#[post("/langs/<name>")]
 fn post_lang(name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("insert into lang (name) values (?1)", params![name]).map_err(map_err)?;
@@ -67,7 +67,7 @@ fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<Lang>>, Status> 
 	Ok(Json(langs))
 }
 
-#[put("/lang/<id>/<name>")]
+#[put("/langs/<id>/<name>")]
 fn put_lang(id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("
@@ -78,7 +78,7 @@ fn put_lang(id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(),
 	Ok(())
 }
 
-#[delete("/lang/<id>")]
+#[delete("/langs/<id>")]
 fn delete_lang(id: i64, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	let mut statement = conn.prepare("
@@ -116,7 +116,7 @@ fn get_classes(lang_id: i64, conn: State<Mutex<Connection>>) -> Result<Json<Vec<
 	Ok(Json(word_class_names))
 }
 
-#[post("/class/<lang_id>/<name>")]
+#[post("/classes/<lang_id>/<name>")]
 fn post_class(lang_id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute(

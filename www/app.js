@@ -55,7 +55,7 @@ const app = {
 			window.getSelection().removeAllRanges();
 		},
 		post_lang() {
-			const url = "/lang/" + encodeURIComponent(this.$refs.lang_input.value);
+			const url = "/langs/" + encodeURIComponent(this.$refs.lang_input.value);
 			const options = {
 				method: "POST",
 				headers: { "Content-Type": "application/text" },
@@ -72,7 +72,7 @@ const app = {
 			});
 		},
 		put_lang(id, name) {
-			const url = "/lang/" + encodeURIComponent(id) + "/" + encodeURIComponent(name);
+			const url = "/langs/" + encodeURIComponent(id) + "/" + encodeURIComponent(name);
 			const options = {
 				method: "PUT",
 				headers: { "Content-Type": "application/text" },
@@ -87,7 +87,7 @@ const app = {
 			});
 		},
 		delete_lang(id) {
-			const url = "/lang/" + encodeURIComponent(id);
+			const url = "/langs/" + encodeURIComponent(id);
 			const options = {
 				method: "DELETE",
 				headers: { "Content-Type": "application/text" },
@@ -113,7 +113,7 @@ const app = {
 		post_class() {
 			const lang_id = encodeURIComponent(this.$refs.lang_select.value)
 			const name = encodeURIComponent(this.$refs.class_input.value)
-			const url = "/class/" + lang_id + "/" + name;
+			const url = "/classes/" + lang_id + "/" + name;
 			const options = {
 				method: "POST",
 				headers: { 'Content-Type': 'application/text' },
