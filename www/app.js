@@ -55,12 +55,12 @@ const app = {
 			window.getSelection().removeAllRanges();
 		},
 		post_lang() {
-			const url = "/langs/" + encodeURIComponent(this.$refs.lang_input.value);
 			const options = {
 				method: "POST",
-				headers: { "Content-Type": "application/text" },
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(this.$refs.lang_input.value),
 			};
-			fetch(url, options).then(response => {
+			fetch("/langs", options).then(response => {
 				if (response.status == 200) {
 					this.error = null;
 					this.$refs.lang_input.value = "";
@@ -72,10 +72,11 @@ const app = {
 			});
 		},
 		put_lang(id, name) {
-			const url = "/langs/" + encodeURIComponent(id) + "/" + encodeURIComponent(name);
+			const url = "/langs/" + encodeURIComponent(id);
 			const options = {
 				method: "PUT",
-				headers: { "Content-Type": "application/text" },
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(name),
 			};
 			fetch(url, options).then(response => {
 				if (response.status == 200) {
@@ -111,12 +112,11 @@ const app = {
 			});
 		},
 		post_class() {
-			const lang_id = encodeURIComponent(this.$refs.lang_select.value)
-			const name = encodeURIComponent(this.$refs.class_input.value)
-			const url = "/classes/" + lang_id + "/" + name;
+			const url = "/classes/" + encodeURIComponent(this.$refs.lang_select.value);
 			const options = {
 				method: "POST",
-				headers: { 'Content-Type': 'application/text' },
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(this.$refs.class_input.value),
 			}
 			fetch(url, options).then(response => {
 				if (response.status == 200) {

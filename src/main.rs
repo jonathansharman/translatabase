@@ -40,10 +40,10 @@ struct Lang {
 	name: String,
 }
 
-#[post("/langs/<name>")]
-fn post_lang(name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[post("/langs", format = "json", data = "<name>")]
+fn create_lang(name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
-	conn.execute("insert into lang (name) values (?1)", params![name]).map_err(map_err)?;
+	conn.execute("insert into lang (name) values (?1)", params![name.as_str()]).map_err(map_err)?;
 	Ok(())
 }
 
@@ -67,14 +67,14 @@ fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<Lang>>, Status> 
 	Ok(Json(langs))
 }
 
-#[put("/langs/<id>/<name>")]
-fn put_lang(id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[put("/langs/<id>", format = "json", data = "<name>")]
+fn edit_lang(id: i64, name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("
 		update lang
 		set name = ?2
 		where id = ?1
-	", params![id, name]).map_err(map_err)?;
+	", params![id, name.as_str()]).map_err(map_err)?;
 	Ok(())
 }
 
@@ -93,6 +93,16 @@ fn delete_lang(id: i64, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 struct WordClass {
 	id: i64,
 	name: String,
+}
+
+#[post("/classes/<lang_id>", format = "json", data = "<name>")]
+fn create_class(lang_id: i64, name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	conn.execute(
+		"insert into class (lang_id, name) values (?1, ?2)",
+		params![lang_id, name.as_str()],
+	).map_err(map_err)?;
+	Ok(())
 }
 
 #[get("/classes/<lang_id>")]
@@ -116,16 +126,6 @@ fn get_classes(lang_id: i64, conn: State<Mutex<Connection>>) -> Result<Json<Vec<
 	Ok(Json(word_class_names))
 }
 
-#[post("/classes/<lang_id>/<name>")]
-fn post_class(lang_id: i64, name: String, conn: State<Mutex<Connection>>) -> Result<(), Status> {
-	let conn = conn.lock().map_err(map_err)?;
-	conn.execute(
-		"insert into class (lang_id, name) values (?1, ?2)",
-		params![lang_id, name],
-	).map_err(map_err)?;
-	Ok(())
-}
-
 fn main() {
 	// Open database connection.
 	let connection = Connection::open("translatabase.db")
@@ -137,12 +137,14 @@ fn main() {
 	rocket::ignite()
 		.mount("/", routes![
 			index,
+			// Languages
+			create_lang,
 			get_langs,
-			put_lang,
-			post_lang,
+			edit_lang,
 			delete_lang,
+			// Classes
 			get_classes,
-			post_class,
+			create_class,
 		])
 		.mount("/", StaticFiles::from("www"))
 		.manage(Mutex::new(connection))
