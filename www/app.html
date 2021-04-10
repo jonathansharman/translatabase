@@ -13,15 +13,14 @@
 <body>
 	<div id="app" v-cloak>
 		<ul class="nav">
-			<li v-bind:class="{ active: panel === 'langs' }" @click="panel = 'langs'">Languages</li>
-			<li v-bind:class="{ active: panel === 'classes' }" @click="panel = 'classes'; this.update_classes()">Word Classes</li>
-			<li v-bind:class="{ active: panel === 'lemmas' }" @click="panel = 'lemmas'">Lemmas</li>
-			<li v-bind:class="{ active: panel === 'translations' }" @click="panel = 'translations'">Translations</li>
+			<li :class="{ active: panel === 'langs' }" @click="panel = 'langs'">Languages</li>
+			<li :class="{ active: panel === 'word-classes' }" @click="panel = 'word-classes'; this.update_word_classes()">Word Classes</li>
+			<li :class="{ active: panel === 'lemmas' }" @click="panel = 'lemmas'">Lemmas</li>
+			<li :class="{ active: panel === 'translations' }" @click="panel = 'translations'">Translations</li>
 		</ul>
 
 		<!-- Languages -->
-		<div v-bind:hidden="panel !== 'langs'">
-		<div>
+		<div :hidden="panel !== 'langs'">
 			<div>
 				<span>
 					<input ref="lang_input" @keydown.enter="post_lang">
@@ -31,55 +30,71 @@
 				</span>
 				<span v-if="error" class="error">{{ error }}</span>
 			</div>
-		</div>
-		<table>
-			<tr v-for="lang in langs">
-				<td>
-					<div>
-						<input :id="'lang-input-' + lang.id" type=text :value="lang.name" :disabled="!renaming_lang[lang.id]"
-							@keydown.enter="save_renaming(lang)" @keydown.escape="cancel_renaming(lang)"></input>
-					</div>
-					<div v-if="renaming_lang[lang.id]" style="padding-top: 6px;">
-						<span><button type="button" :id="'save-rename-' + lang.id" @click="save_renaming(lang)"
-								class="edit">Save</button></span>
-						<span><button type="button" :id="'cancel-rename-' + lang.id"
-								@click="cancel_renaming(lang)">Cancel</button></span>
-					</div>
-				</td>
-				<td>
-					<button type="button" :id="'rename-' + lang.id" @click="start_renaming(lang)"
-						class="edit">Rename</button>
-				</td>
-				<td>
-					<button type="button" :id="'delete-' + lang.id" @click="delete_lang(lang.id)"
-						class="delete">Delete</button>
-				</td>
-			</tr>
-		</table>
+			<table>
+				<tr v-for="lang in langs">
+					<td>
+						<div>
+							<input :id="'lang-input-' + lang.id" type=text :value="lang.name" :disabled="!renaming_lang[lang.id]"
+								@keydown.enter="save_renaming_lang(lang)" @keydown.escape="cancel_renaming_lang(lang)"></input>
+						</div>
+						<div v-if="renaming_lang[lang.id]" style="padding-top: 6px;">
+							<span><button type="button" :id="'save-rename-lang-' + lang.id" @click="save_renaming_lang(lang)"
+									class="edit">Save</button></span>
+							<span><button type="button" :id="'cancel-rename-lang-' + lang.id"
+									@click="cancel_renaming_lang(lang)">Cancel</button></span>
+						</div>
+					</td>
+					<td>
+						<button type="button" :id="'rename-lang-' + lang.id" @click="start_renaming_lang(lang)"
+							class="edit">Rename</button>
+					</td>
+					<td>
+						<button type="button" :id="'delete-lang-' + lang.id" @click="delete_lang(lang.id)"
+							class="delete">Delete</button>
+					</td>
+				</tr>
+			</table>
 		</div>
 
 		<!-- Word classes -->
-		<div v-bind:hidden="panel !== 'classes'">
-		<label for="lang-select">Language:</label>
-		<select id="lang-select" ref="lang_select" @change="update_classes">
-			<template v-for="lang in langs">
-				<option v-bind:value="lang.id">{{ lang.name }}</option>
-			</template>
-		</select>
-		<div>
-			<span>
-				<input ref="class_input" @keydown.enter="post_class">
-			</span>
-			<span>
-				<button id="add-class" @click="post_class" class="create">Add</button>
-			</span>
-			<span v-if="error" class="error">{{ error }}</span>
-		</div>
-		<div>
-			<span v-for="word_class in word_classes">
-				{{ word_class.name }}
-			</span>
-		</div>
+		<div :hidden="panel !== 'word-classes'">
+			<label for="lang-select">Language:</label>
+			<select id="lang-select" ref="lang_select" @change="update_word_classes">
+				<template v-for="lang in langs">
+					<option :value="lang.id">{{ lang.name }}</option>
+				</template>
+			</select>
+			<div>
+				<span>
+					<input ref="word_class_input" @keydown.enter="post_word_class">
+				</span>
+				<span>
+					<button id="add-word-class" @click="post_word_class" class="create">Add</button>
+				</span>
+				<span v-if="error" class="error">{{ error }}</span>
+			</div>
+			<table>
+				<tr v-for="word_class in word_classes">
+					<td>
+						<div>
+							<input :id="'word-class-input-' + word_class.id" type=text :value="word_class.name" :disabled="!renaming_word_class[word_class.id]"
+								@keydown.enter="save_renaming_word_class(word_class)" @keydown.escape="cancel_renaming_word_class(word_class)"></input>
+						</div>
+						<div v-if="renaming_word_class[word_class.id]" style="padding-top: 6px;">
+							<span><button type="button" :id="'save-rename-word-class-' + word_class.id" @click="save_renaming_word_class(word_class)"
+									class="edit">Save</button></span>
+							<span><button type="button" :id="'cancel-rename-word-class-' + word_class.id"
+									@click="cancel_renaming_word_class(word_class)">Cancel</button></span>
+						</div>
+					</td>
+					<td>
+						<button type="button" :id="'rename-word-class-' + word_class.id" @click="start_renaming_word_class(word_class)" class="edit">Rename</button>
+					</td>
+					<td>
+						<button type="button" :id="'delete-word-class-' + word_class.id" @click="delete_word_class(word_class.id)" class="delete">Delete</button>
+					</td>
+				</tr>
+			</table>
 		</div>
 	</div>
 

@@ -35,47 +35,52 @@ fn index(conn: State<Mutex<Connection>>) -> Result<Redirect, Status> {
 }
 
 #[derive(Serialize, Deserialize)]
-struct Lang {
-	id: i64,
+struct LangIn {
 	name: String,
 }
 
-#[post("/langs", format = "json", data = "<name>")]
-fn create_lang(name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[post("/langs", format = "json", data = "<lang>")]
+fn create_lang(lang: Json<LangIn>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
-	conn.execute("insert into lang (name) values (?1)", params![name.as_str()]).map_err(map_err)?;
+	conn.execute("insert into lang (name) values (?1)", params![lang.name]).map_err(map_err)?;
 	Ok(())
 }
 
-#[get("/langs")]
-fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<Lang>>, Status> {
-	let conn = conn.lock().map_err(map_err)?;
-	let mut statement = conn.prepare("
-		select id, name from lang
-		order by name collate nocase
-	").map_err(map_err)?;
-	let rows = statement.query_map(params![], |row| {
-		Ok(Lang {
-			id: row.get(0)?,
-			name: row.get(1)?,
-		})
-	}).map_err(map_err)?;
-	let mut langs = Vec::new();
-	for lang in rows {
-		langs.push(lang.map_err(map_err)?);
-	}
-	Ok(Json(langs))
-}
-
-#[put("/langs/<id>", format = "json", data = "<name>")]
-fn edit_lang(id: i64, name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[put("/langs/<id>", format = "json", data = "<lang>")]
+fn edit_lang(id: i64, lang: Json<LangIn>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	conn.execute("
 		update lang
 		set name = ?2
 		where id = ?1
-	", params![id, name.as_str()]).map_err(map_err)?;
+	", params![id, lang.name]).map_err(map_err)?;
 	Ok(())
+}
+
+#[derive(Serialize, Deserialize)]
+struct LangOut {
+	id: i64,
+	name: String,
+}
+
+#[get("/langs")]
+fn get_langs(conn: State<Mutex<Connection>>) -> Result<Json<Vec<LangOut>>, Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	let mut statement = conn.prepare("
+		select id, name from lang
+		order by name collate nocase
+	").map_err(map_err)?;
+	let lang_results = statement.query_map(params![], |row| {
+		Ok(LangOut {
+			id: row.get(0)?,
+			name: row.get(1)?,
+		})
+	}).map_err(map_err)?;
+	let mut langs = Vec::new();
+	for lang_result in lang_results {
+		langs.push(lang_result.map_err(map_err)?);
+	}
+	Ok(Json(langs))
 }
 
 #[delete("/langs/<id>")]
@@ -90,40 +95,71 @@ fn delete_lang(id: i64, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 }
 
 #[derive(Serialize, Deserialize)]
-struct WordClass {
-	id: i64,
+struct WordClassIn {
+	lang_id: i64,
 	name: String,
 }
 
-#[post("/classes/<lang_id>", format = "json", data = "<name>")]
-fn create_class(lang_id: i64, name: Json<String>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+#[post("/word-classes", format = "json", data = "<word_class>")]
+fn create_word_class(word_class: Json<WordClassIn>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
 	let conn = conn.lock().map_err(map_err)?;
+	let word_class = word_class.into_inner();
 	conn.execute(
-		"insert into class (lang_id, name) values (?1, ?2)",
-		params![lang_id, name.as_str()],
+		"insert into word_class (lang_id, name) values (?1, ?2)",
+		params![word_class.lang_id, word_class.name],
 	).map_err(map_err)?;
 	Ok(())
 }
 
-#[get("/classes/<lang_id>")]
-fn get_classes(lang_id: i64, conn: State<Mutex<Connection>>) -> Result<Json<Vec<WordClass>>, Status> {
+#[put("/word-classes/<id>", format = "json", data = "<word_class>")]
+fn edit_word_class(id: i64, word_class: Json<WordClassIn>, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	conn.execute("
+		update word_class
+		set lang_id = ?2, name = ?3
+		where id = ?1
+	", params![id, word_class.lang_id, word_class.name]).map_err(map_err)?;
+	Ok(())
+}
+
+#[derive(Serialize, Deserialize)]
+struct WordClassOut {
+	id: i64,
+	lang_id: i64,
+	name: String,
+}
+
+#[get("/word-classes?<lang_id>")]
+fn get_word_classes(lang_id: Option<i64>, conn: State<Mutex<Connection>>) -> Result<Json<Vec<WordClassOut>>, Status> {
 	let conn = conn.lock().map_err(map_err)?;
 	let mut statement = conn.prepare("
-		select id, name from class
-		where lang_id = ?1
+		select id, lang_id, name from word_class
+		where ?1 is null or lang_id = ?1
 		order by name collate nocase
 	").map_err(map_err)?;
-	let word_classes = statement.query_map(params![lang_id], |row| {
-		Ok(WordClass {
+	let word_class_results = statement.query_map(params![lang_id], |row| {
+		Ok(WordClassOut {
 			id: row.get(0)?,
-			name: row.get(1)?,
+			lang_id: row.get(1)?,
+			name: row.get(2)?,
 		})
 	}).map_err(map_err)?;
-	let mut word_class_names = Vec::new();
-	for word_class in word_classes {
-		word_class_names.push(word_class.map_err(map_err)?);
+	let mut word_classes = Vec::new();
+	for word_class_result in word_class_results {
+		word_classes.push(word_class_result.map_err(map_err)?);
 	}
-	Ok(Json(word_class_names))
+	Ok(Json(word_classes))
+}
+
+#[delete("/word-classes/<id>")]
+fn delete_word_class(id: i64, conn: State<Mutex<Connection>>) -> Result<(), Status> {
+	let conn = conn.lock().map_err(map_err)?;
+	let mut statement = conn.prepare("
+		delete from word_class
+		where id = $1
+	").map_err(map_err)?;
+	statement.execute(params![id]).map_err(map_err)?;
+	Ok(())
 }
 
 fn main() {
@@ -143,8 +179,10 @@ fn main() {
 			edit_lang,
 			delete_lang,
 			// Classes
-			get_classes,
-			create_class,
+			create_word_class,
+			get_word_classes,
+			edit_word_class,
+			delete_word_class,
 		])
 		.mount("/", StaticFiles::from("www"))
 		.manage(Mutex::new(connection))

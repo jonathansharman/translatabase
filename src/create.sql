@@ -5,7 +5,7 @@ create table if not exists lang (
 	name text not null unique
 );
 
-create table if not exists class (
+create table if not exists word_class (
 	id integer primary key,
 	lang_id integer not null,
 	name text not null,
@@ -25,12 +25,12 @@ create table if not exists def (
 	id integer primary key,
 	lemma_id integer not null,
 	sort_order integer not null,
-	class_id integer not null,
+	word_class_id integer not null,
 	translit text not null,
 	content text not null,
 	unique (lemma_id, sort_order),
 	foreign key (lemma_id) references lemma (id),
-	foreign key (class_id) references class (id)
+	foreign key (word_class_id) references word_class (id)
 );
 
 create table if not exists trans (
