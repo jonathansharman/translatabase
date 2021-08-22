@@ -1,16 +1,15 @@
 [package]
-name = "translatabase"
-version = "0.1.0"
 authors = ["Jonathan Sharman <jonathan.sharman@gmail.com>"]
 edition = "2018"
+name = "translatabase"
+version = "0.1.0"
 
 [dependencies]
-log = "0.4.14"
-rocket = "0.4.7"
-rocket_contrib = "0.4.7"
-serde = { version = "1.0.123", features = ["derive"] }
-webbrowser = "0.5.5"
+log = "0.4"
+rocket = {version = "0.5.0-rc.1", features = ["json"]}
+serde = {version = "1.0", features = ["derive"]}
+webbrowser = "0.5"
 
 [dependencies.rusqlite]
-version = "0.24.2"
 features = ["bundled"]
+version = "0.24"
