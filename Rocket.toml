@@ -1,0 +1,2 @@
+[default.databases]
+translatabase = {url = "translatabase.db"}
